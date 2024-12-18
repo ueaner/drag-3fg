@@ -8,7 +8,7 @@ use std::io::{self, BufRead};
 use std::fs::read_to_string;
 use std::iter::Iterator;
 use std::process::{Command, Stdio};
-//use std::env;
+use std::env;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use serde::Deserialize;
@@ -31,10 +31,10 @@ struct Configuration {
 //
 // The user is also warned about this, so they can address the issues 
 // if they want to configure the way the program runs.
-fn parse_config_file(filepath: &str) -> Configuration {
-    
-    let Ok(jsonfile) = read_to_string(filepath) else {
-        println!("WARNING: Unable to locate JSON file at {}; using defaults of:
+fn parse_config_file(filepath: String) -> Configuration {
+
+    let Ok(jsonfile) = read_to_string(&filepath) else {
+        println!("WARNING: Unable to locate JSON file at {:?}; using defaults of:
 
             acceleration = 1.0
             dragEndDelay = 0
@@ -45,7 +45,7 @@ fn parse_config_file(filepath: &str) -> Configuration {
             drag_end_delay: 0
         };
     };
-
+    from_str::<Configuration>(&jsonfile).unwrap();
     let Ok(config) = from_str::<Configuration>(&jsonfile) else {
         println!("WARNING: Bad formatting found in JSON file, falling back on defaults of:
     
@@ -78,15 +78,18 @@ fn main() {
         Arc::clone(&sigint_received)
     ).unwrap();
     
-    // let args: Vec<String> = env::args().collect();
-    // let acceleration: f32;
-    // if args.len() > 1 {
-    //     acceleration = args[1].parse::<f32>().unwrap_or(1.0);
-    // } else {
-    //     acceleration = 1.0;
-    // }
+    // Rust does not expand ~ notation in Unix filepath strings, 
+    // so we have to implement it ourselves.
+    // 
+    // Starting with getting $HOME...
+    let mut config_path = env::var_os("HOME")
+        .expect("$HOME is either not accessible to this program, or is not defined in your environment.")
+        .into_string()
+        .expect("could not convert $HOME to string");
+    let path_from_home_dir = "/.config/linux-3-finger-drag/3fd-config.json";
+    config_path.push_str(path_from_home_dir);
 
-    let configs = parse_config_file("~/.config/linux-3-finger-drag/3fd-config.json");
+    let configs = parse_config_file(config_path);
     let mut vtrackpad = uinput_handler::start_handler();
 
     let output = Command::new("stdbuf")
