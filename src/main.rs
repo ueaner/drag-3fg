@@ -86,7 +86,7 @@ fn main() {
     //     acceleration = 1.0;
     // }
 
-    let configs = parse_config_file("~/.config/linux-3-finger-drag/config.json");
+    let configs = parse_config_file("~/.config/linux-3-finger-drag/3fd-config.json");
     let mut vtrackpad = uinput_handler::start_handler();
 
     let output = Command::new("stdbuf")
