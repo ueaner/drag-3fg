@@ -95,12 +95,12 @@ fn main() {
         .arg("debug-events")
         .stdout(Stdio::piped())
         .spawn()
-        .expect("can not exec libinput")
-        .stdout
         .expect("You are not yet allowed to read libinput's debug events.
         Have you added yourself to the group \"input\" yet?
         (see installation section in README, step 3.2)
-        ");
+        ")
+        .stdout
+        .expect("libinput has no stdout");
 
 
     let mut xsum: f32 = 0.0;
