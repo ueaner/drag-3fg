@@ -3,7 +3,7 @@ This is essentially a fork of marsqing's [`libinput-three-finger-drag`](https://
 
 ## Installation
 
-### 1. Clone the repo
+### 1. Clone the repository
 ```
 git clone https://github.com/lmr97/linux-3-finger-drag.git
 cd linux-3-finger-drag
