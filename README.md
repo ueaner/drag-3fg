@@ -1,5 +1,11 @@
 # Three Finger Drag for Wayland/KDE
-This is essentially a fork of marsqing's [`libinput-three-finger-drag`](https://github.com/marsqing/libinput-three-finger-drag), but built for computers with touchpads running in Wayland sessions (notably KDE Plasma 6). It does this by substituing the `xdo` calls in marsqing's original for write-calls directly to [`/dev/uinput`](https://www.kernel.org/doc/html/v4.12/input/uinput.html) (via Rust's `input-linux` crate), which lies beneath the display server layer. This (in theory) allows the program to run in any desktop environment that has libinput installed, which includes both KDE Plasma and GNOME.
+This program builds off marsqing's [`libinput-three-finger-drag`](https://github.com/marsqing/libinput-three-finger-drag), adapting it for computers with touchpads running in Wayland sessions (notably KDE Plasma 6). It does this by substituing the `xdo` calls in marsqing's original for write-calls directly to [`/dev/uinput`](https://www.kernel.org/doc/html/v4.12/input/uinput.html) (via Rust's `input-linux` crate), which lies beneath the display server layer. This (in theory) allows the program to run in any desktop environment that has libinput installed, which includes both KDE Plasma and GNOME.
+
+## What is three-finger dragging?
+
+Three-finger dragging is a feature originally for trackpads on Mac devices: instead of holding down the left click on the pad to drag, you can simply rest three fingers on the trackpad to start a mouse hold, and move the fingers together to continue the drag in whatever direction you move them in. In short, it interprets three fingers on the trackpad as a mouse-down input, and motion with three fingers afterwards for mouse movement. It can be quite handy, as it will save your hand some effort for moving windows around and highlighting text. 
+
+Here is [an example](https://www.youtube.com/watch?v=-Fy6imaiHWE) of three-finger dragging in action on a MacBook.
 
 ## Installation
 
@@ -91,8 +97,7 @@ Now select the program in the Autostart menu, and press Start in the upper right
 
 
 ## Configuration
-
 There is a JSON configuration file, assumed to be in `~/.config/linux-3-finger-drag/` called `3fd-config.json`, which is read into the program at startup. You can specify an acceleration value (`acceleration`), which will be multiplied with all 3-finger gesture movements. You can also specify the time (in milliseconds) that the mouse hold will persist for after you lift your fingers (to give you a moment to reposition your fingers), with `drag_end_delay`. It's entirely optional: if the file cannot be read for any reason, the program will simply warn the user that the file could not be read (with the reason), and default to an acceleration multiplier of 1 and a drag end delay value of 0. 
 
-# How it works
+## How it works
 Much like `libinput-three-finger-drag`, this program reads from the `libinput debug-events` command and parses the raw text, but here is where this fork diverges from the original: it defines a virtual mouse through `/dev/uinput` and translates three finger touch events parsed from the debug output into mouse presses and mouse movement for the virtual mouse.
