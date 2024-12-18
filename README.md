@@ -51,7 +51,7 @@ sudo udevadm trigger
 
 `libinput` will only let members of the group `input` read its debug output, so add yourself to the group by running:
 ```
-sudo gpasswd -add your_username_here input
+sudo gpasswd --add your_username_here input
 ```
 
 ### 4. Build with Cargo
@@ -80,7 +80,7 @@ sudo cp ./target/release/linux-3-finger-drag /usr/bin
 See the Configuration section below about the included `3fd-config.json` file. If you'd like to configure the behavior of this program, run the following:
 ```
 mkdir ~/.config/linux-3-finger-drag
-mv 3fd-config.json ~/.config/linux-3-finger-drag
+cp 3fd-config.json ~/.config/linux-3-finger-drag
 ```
 Now you can configure to your heart's content!
 
@@ -91,7 +91,7 @@ This is a part of the graphical interface. You can find the Autostart menu in Sy
 ```
 and click OK. 
 
-Now select the program in the Autostart menu, and press Start in the upper right-hand corner of the window to start using it in the current session.
+Now select the program in the Autostart menu, and press Start in the upper right-hand corner of the window to start using it in the current session. It will automatically start in the next session you log into.
 
 ### You did it! Now you can 3-finger-drag!
 
