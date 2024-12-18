@@ -30,7 +30,7 @@ pub fn start_handler() -> VirtualTrackpad {
         .read(true)
         .write(true)
         .custom_flags(O_NONBLOCK)
-        .open("/dev/uinp3ut")
+        .open("/dev/uinput")
         .expect("You are not yet allowed to write to /dev/uinput.
             Have you updated the udev rules for uinput?
             (see installation guide in README.md, step 3.1)
