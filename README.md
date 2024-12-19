@@ -1,6 +1,11 @@
 # Three Finger Drag for Wayland/KDE
 This program builds off marsqing's [`libinput-three-finger-drag`](https://github.com/marsqing/libinput-three-finger-drag), adapting it for computers with touchpads running in Wayland sessions (notably KDE Plasma 6). It does this by substituing the `xdo` calls in marsqing's original for write-calls directly to [`/dev/uinput`](https://www.kernel.org/doc/html/v4.12/input/uinput.html) (via Rust's `input-linux` crate), which lies beneath the display server layer. This (in theory) allows the program to run in any desktop environment that has libinput installed, which includes both KDE Plasma and GNOME.
 
+## Tested on...
+
+✅ Kubuntu (24.10)
+✅ Pop_OS! (default COSMIC desktop environment)
+
 ## What is three-finger dragging?
 
 Three-finger dragging is a feature originally for trackpads on Mac devices: instead of holding down the left click on the pad to drag, you can simply rest three fingers on the trackpad to start a mouse hold, and move the fingers together to continue the drag in whatever direction you move them in. In short, it interprets three fingers on the trackpad as a mouse-down input, and motion with three fingers afterwards for mouse movement. It can be quite handy, as it will save your hand some effort for moving windows around and highlighting text. 
@@ -9,18 +14,31 @@ Here is [an example](https://www.youtube.com/watch?v=-Fy6imaiHWE) of three-finge
 
 ## Installation
 
+### 0. Install `libinput` helper tools (you may have it already)
+
+If you are using GNOME or KDE Plasma for your desktop environment, you already have `libinput` installed (it's a dependency of those environments). There is also a set of helper tools for `libinput` accessible from the command line that `linux-3-finger-drag` needs to function properly, which may also be already installed. Regardless, you can confirm whether you have these helper tools by running:
+```
+libinput --version
+```
+If you get a version number from this command, you can proceed to the next step.
+
+On Debian/Ubuntu-based distributions, you may need to install the `libinput-tools` package to get the helper tools.
+
+For other distributions, or for building from the source (which will include the helper tools), see the [`libinput`'s build instructions](https://wayland.freedesktop.org/libinput/doc/latest/building.html#building). With other distros, you may need to install the helper tools separately.
+
+
 ### 1. Clone the repository
 ```
 git clone https://github.com/lmr97/linux-3-finger-drag.git
 cd linux-3-finger-drag
 ```
 
-### 2. Disable 3 finger swipe gesture in libinput-gestures (if needed)
+### 2. Disable 3 finger swipe gesture in `libinput-gestures` (if needed)
 
 If you haven't installed `libinput-gestures`, you can skip this step. 
 
 If you have, though, modify the config file `/etc/libinput-gestures.conf` or `~/.config/libinput-gestures.conf`. 
-Add finger_count 4 to essentially disable 3 finger swipes.
+Add 4 in the `finger_count` column to convert 3 finger swipes to 4 finger swipes, to prevent confusion for the desktop environment and frustration for yourself.
 
 change
 ``` 
