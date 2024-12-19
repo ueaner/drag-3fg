@@ -97,15 +97,15 @@ Now select the program in the Autostart menu, and press Start in the upper right
 
 Alternatively you can add this program to the autostart in any linux desktop and autostart it via systemd. To do this copy this file create the local systemd folder if not already created:
 
-`mkdir -p ~/.config/systemd/user`
+```mkdir -p ~/.config/systemd/user```
 
 After that copy the service file in this repo to the folder you just created (or just the folder if you already have one):
 
-`cp three-finger-drag.service ~/.config/systemd/user/`
+```cp three-finger-drag.service ~/.config/systemd/user/```
 
 Now you just need to enable and start the service:
 
-`systemctl --user enable --now three-finger-drag.service`
+```systemctl --user enable --now three-finger-drag.service```
 
 ### You did it! Now you can 3-finger-drag!
 
