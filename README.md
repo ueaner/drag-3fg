@@ -3,9 +3,13 @@ This program builds off marsqing's [`libinput-three-finger-drag`](https://github
 
 ## Tested on...
 
-* ✅ Kubuntu (24.10)
+OS | Version | Desktop Enviroment | Supported
+---|---|---|---
+**Kubuntu** | 24.10 | KDE Plasma 6| ✅ <sup>1</sup>
+**Pop_OS!** | (unknown) | COSMIC | ✅
 
-* ✅ Pop_OS! (default COSMIC desktop environment)
+---
+<sup>1</sup> Developed on this setup.
 
 ## What is three-finger dragging?
 
