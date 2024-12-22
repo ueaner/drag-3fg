@@ -84,6 +84,7 @@ sudo udevadm trigger
 ```
 sudo gpasswd --add your_username_here input
 ```
+You will need to **reboot** to update the groups. 
 
 ### 4. Build with Cargo
 ```
