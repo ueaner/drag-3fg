@@ -1,5 +1,5 @@
 # Three Finger Drag for Wayland/KDE
-This program builds off marsqing's [`libinput-three-finger-drag`](https://github.com/marsqing/libinput-three-finger-drag), adapting it for computers with touchpads running in Wayland sessions (notably KDE Plasma 6). It does this by substituing the `xdo` calls in marsqing's original for write-calls directly to [`/dev/uinput`](https://www.kernel.org/doc/html/v4.12/input/uinput.html) (via Rust's `input-linux` crate), which lies beneath the display server layer. This (in theory) allows the program to run in any desktop environment that has libinput installed, which includes both KDE Plasma and GNOME.
+This program builds off marsqing's [`libinput-three-finger-drag`](https://github.com/marsqing/libinput-three-finger-drag), adapting it for computers with touchpads running in Wayland sessions (notably KDE Plasma 6). It does this by substituing the `xdo` calls in marsqing's original for write-calls directly to [`/dev/uinput`](https://www.kernel.org/doc/html/v4.12/input/uinput.html) (via Rust's `input-linux` crate), which lies beneath the display server layer. This (in theory) allows the program to run in any desktop environment that has `libinput` installed, which includes both KDE Plasma and GNOME.
 
 ## Tested on...
 
@@ -34,12 +34,18 @@ git clone https://github.com/lmr97/linux-3-finger-drag.git
 cd linux-3-finger-drag
 ```
 
-### 2. Disable 3 finger swipe gesture in `libinput-gestures` (if needed)
+### 2. Change any existing 3-finger gestures to 4-finger gestures
 
-If you haven't installed `libinput-gestures`, you can skip this step. 
+#### For GNOME users
+
+GNOME users will need to install the Window Gestures Shell Extension. Once installed, you'll be able to change the finger number for gestures from your settings. You can get it from either the [GNOME Extensions website](https://extensions.gnome.org/extension/6343/window-gestures/) or the [GitHub repository](https://github.com/amarullz/windowgestures).
+
+#### For `libinput-gestures` (if needed)
+
+If you haven't installed `libinput-gestures`, you can skip to the next step. 
 
 If you have, though, modify the config file `/etc/libinput-gestures.conf` or `~/.config/libinput-gestures.conf`. 
-Add 4 in the `finger_count` column to convert 3 finger swipes to 4 finger swipes, to prevent confusion for the desktop environment and frustration for yourself.
+Add 4 in the finger_count column to convert 3 finger swipes to 4 finger swipes, to prevent confusion for the desktop environment and frustration for yourself.
 
 change
 ``` 
@@ -51,20 +57,26 @@ gesture swipe up  4  xdotool key super+Page_Down
 ```
 (The only difference is the 4 before "xdotool").
 
+#### For other extensions/programs (like [wzmach](https://github.com/maurges/wzmach))
+
+The process is essentially the same: there is typically a configuration file somewhere that includes the number of fingers for swipe gestures, and if there are any responding to 3-finger swipes, increase the finger count to 4. Consult your program's documentation for the specifics.
+
+If there's enough interest, I'll add an option to configure the number of fingers this program responds to to start the drag. 
+
 ### 3. Update permissions
+
+This programs reads from `libinput`, and writes to `/dev/uinput`, and it requires an adjustment of permissions to accomplish both. 
 
 #### 3.1: For `/dev/uinput`
 We need to make `/dev/uinput` accessible to all logged-in users, so the program doesn't require root permissions to run. For more info about what's being done here, see [this section](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) of the ArchWiki article on `udev`. 
 
+**Note**: You may need to create the folder `rules.d` in `/etc/udev`.
+
 ```
-# defining a variable here saves us from quote escape hell
-RULES="KERNEL==\"uinput\", MODE=\"0660\", TAG+=\"uaccess\""
-sudo sh -c "echo $RULES >> /etc/udev/rules.d/60-uinput.rules"
+sudo cp ./60-uinput.rules /etc/udev/rules.d
 sudo udevadm control --reload
 sudo udevadm trigger
 ```
-
-(It's not important that the number prepended to `uinput.rules` is 60, any number less than 70 will do, since that's the number with which the rules for `uaccess` starts, and, with a lexical precidence, our uinput rules need to be read first).
 
 #### 3.2: For `libinput`
 
