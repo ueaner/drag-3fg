@@ -42,7 +42,7 @@ cd linux-3-finger-drag
 
 #### For GNOME users
 
-GNOME users will need to install the Window Gestures Shell Extension. Once installed, you'll be able to change the finger number for gestures from your settings. You can get it from either the [GNOME Extensions website](https://extensions.gnome.org/extension/6343/window-gestures/) or the [GitHub repository](https://github.com/amarullz/windowgestures).
+GNOME users will need to install the Window Gestures Shell Extension. Once installed, you'll be able to change the finger number for swipe gestures from your settings. You can get it from either the [GNOME Extensions website](https://extensions.gnome.org/extension/6343/window-gestures/) or the [GitHub repository](https://github.com/amarullz/windowgestures).
 
 #### For `libinput-gestures` (if needed)
 
@@ -72,10 +72,10 @@ If there's enough interest, I'll add an option to configure the number of finger
 This programs reads from `libinput`, and writes to `/dev/uinput`, and it requires an adjustment of permissions to accomplish both. 
 
 #### 3.1: For `/dev/uinput`
-We need to make `/dev/uinput` accessible to all logged-in users, so the program doesn't require root permissions to run. For more info about what's being done here, see [this section](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) of the ArchWiki article on `udev`. 
+We need to alter the rules for `/dev/uinput` to make it accessible to all logged-in users, so the program doesn't require root permissions to run. For more info about what's being done here, see [this section](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) of the ArchWiki article on `udev`. 
+You may need to create the folder `rules.d` in `/etc/udev`.
 
-**Note**: You may need to create the folder `rules.d` in `/etc/udev`.
-
+<u>**For Arch users**</u>: You will need to set the `uinput` kernel module to load on boot, if you haven't already. For instructions on this, see the [relevant ArchWiki page](https://wiki.archlinux.org/title/Kernel_module#Automatic_module_loading).
 ```
 sudo cp ./60-uinput.rules /etc/udev/rules.d
 sudo udevadm control --reload
