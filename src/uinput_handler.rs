@@ -31,10 +31,13 @@ pub fn start_handler() -> VirtualTrackpad {
         .write(true)
         .custom_flags(O_NONBLOCK)
         .open("/dev/uinput")
-        .expect("You are not yet allowed to write to /dev/uinput.
-            Have you updated the udev rules for uinput?
-            (see installation guide in README.md, step 3.1)
-            You may also need to log out and log in again, or restart your computer.
+        .expect("
+            You are not yet allowed to write to /dev/uinput.
+            Some things to try:
+            - Update the udev rules for uinput (see installation guide in README.md, step 3.1)
+            - Log out and log in again
+            - Restart your computer
+            - FOR ARCH: make sure the uinput kernel module is loaded on boot
             ");
     let uhandle = UInputHandle::new(uinput_file);
 
