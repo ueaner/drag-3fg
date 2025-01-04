@@ -7,6 +7,7 @@ OS | Version | Desktop Enviroment | Supported
 ---|---|---|---
 **Kubuntu** | 24.10 | KDE Plasma 6| ✅ <sup>1</sup>
 **Pop_OS!** | (unknown) | COSMIC | ✅
+**Arch** | 2025-01-01 | GNOME | ✅
 
 ---
 <sup>1</sup> Developed on this setup.
@@ -42,7 +43,7 @@ cd linux-3-finger-drag
 
 #### For GNOME users
 
-GNOME users will need to install the Window Gestures Shell Extension. Once installed, you'll be able to change the finger number for swipe gestures from your settings. You can get it from either the [GNOME Extensions website](https://extensions.gnome.org/extension/6343/window-gestures/) or the [GitHub repository](https://github.com/amarullz/windowgestures).
+GNOME users will need to install the Window Gestures Shell Extension. Once installed, you'll be able to change the finger number for swipe gestures from your settings. You can get it from either the [GNOME Extensions website](https://extensions.gnome.org/extension/6343/window-gestures/) or the [GitHub repository](https://github.com/amarullz/windowgestures). Once installed, disable all three finger gestures. 
 
 #### For `libinput-gestures` (if needed)
 
@@ -78,8 +79,6 @@ You may need to create the folder `rules.d` in `/etc/udev`.
 <u>**For Arch users**</u>: You will need to set the `uinput` kernel module to load on boot, if you haven't already. For instructions on this, see the [relevant ArchWiki page](https://wiki.archlinux.org/title/Kernel_module#Automatic_module_loading).
 ```
 sudo cp ./60-uinput.rules /etc/udev/rules.d
-sudo udevadm control --reload
-sudo udevadm trigger
 ```
 
 #### 3.2: For `libinput`
