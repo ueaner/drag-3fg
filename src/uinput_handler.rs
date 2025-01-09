@@ -54,7 +54,7 @@ pub fn start_handler() -> VirtualTrackpad {
         product: 0x5678,  // iykyk
         version: 0,
     };
-    let device_name = b"Shadow trackpad";
+    let device_name = b"Virtual trackpad (made by linux-three-finger-drag)";
     uhandle.create(&input_id, device_name, 0, &[]).unwrap();
 
     // needed to let the system catch up
