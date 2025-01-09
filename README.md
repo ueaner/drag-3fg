@@ -22,15 +22,31 @@ Here is [an example](https://www.youtube.com/watch?v=-Fy6imaiHWE) of three-finge
 
 ### 0. Install `libinput` helper tools (you may have it already)
 
-If you are using GNOME or KDE Plasma for your desktop environment, you already have `libinput` installed (it's a dependency of those environments). There is also a set of helper tools for `libinput` accessible from the command line that `linux-3-finger-drag` needs to function properly, which may also be already installed. Regardless, you can confirm whether you have these helper tools by running:
+If you are using GNOME or KDE Plasma for your desktop environment, you already have `libinput` installed (it's a dependency of those environments). There is also a set of helper tools for `libinput` accessible from the command line that `linux-3-finger-drag` depends on, which may also be already installed. 
+
+Regardless, you can confirm whether you have these helper tools by running:
 ```
 libinput --version
 ```
 If you get a version number from this command, you can proceed to the next step.
 
-On Debian/Ubuntu-based distributions, you may need to install the `libinput-tools` package to get the helper tools.
+If it's not installed, you can install it with the following for common distributions:
 
-For other distributions, or for building from the source (which will include the helper tools), see the [`libinput`'s build instructions](https://wayland.freedesktop.org/libinput/doc/latest/building.html#building). With other distros, you may need to install the helper tools separately.
+#### Debian/Ubuntu
+```
+sudo apt install libinput-tools
+```
+#### Fedora 22 or later
+```
+sudo dnf install libinput-utils
+```
+#### openSUSE
+```
+sudo zypper install libinput-tools
+```
+Other common distributions (e.g. Arch) include the helper tools in their `libinput` packages.
+
+For other distributions, see the [pkgs.org site for `libinput-tools`](https://pkgs.org/download/libinput-tools) and [`libinput-utils`](https://pkgs.org/download/libinput-utils). 
 
 
 ### 1. Clone the repository
