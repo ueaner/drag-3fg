@@ -96,8 +96,6 @@ gesture swipe up  4  xdotool key super+Page_Down
 
 The process is essentially the same: there is typically a configuration file somewhere that includes the number of fingers for swipe gestures, and if there are any responding to 3-finger swipes, increase the finger count to 4. Consult your program's documentation for the specifics.
 
-If there's enough interest, I'll add an option to configure the number of fingers this program responds to to start the drag. 
-
 ### 3. Update permissions
 
 This programs reads from `libinput`, and writes to `/dev/uinput`, and it requires an adjustment of permissions to accomplish both. 
