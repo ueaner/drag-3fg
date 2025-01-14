@@ -12,11 +12,11 @@ if [[ $(whoami) != "root" ]]; then
 fi
 
 # verify CWD is the repo folder
-if [[ ${PWD##*/} != "linux-three-finger-drag" ]]; then
+if [[ ${PWD##*/} != "linux-3-finger-drag" ]]; then
     echo -e "[\e[0;31m FAIL \e[0m]"
     echo -e "\n\e[0;31mFatal\e[0m: This script needs to be run from the repo directory"
-    echo "(linux-three-finger-drag) to run properly. Either return to that directory,"
-    echo "or, if you're already there, change the name back to linux-three-finger-drag."
+    echo "(linux-3-finger-drag) to run properly. Either return to that directory,"
+    echo "or, if you're already there, change the name back to linux-3-finger-drag."
     exit 1
 fi
 
