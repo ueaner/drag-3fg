@@ -5,6 +5,7 @@ extern crate serde_json;
 
 use regex::Regex;
 use std::io::{self, BufRead};
+use std::ffi::OsString;
 use std::fs::read_to_string;
 use std::iter::Iterator;
 use std::process::{Command, Stdio};
@@ -31,9 +32,9 @@ struct Configuration {
 //
 // The user is also warned about this, so they can address the issues 
 // if they want to configure the way the program runs.
-fn parse_config_file(filepath: String) -> Configuration {
+fn parse_config_file(filepath: OsString) -> Configuration {
 
-    let Ok(jsonfile) = read_to_string(&filepath) else {
+    let Ok(jsonfile) = read_to_string::<&OsString>(&filepath) else {
         println!("WARNING: Unable to locate JSON file at {:?}; using defaults of:
 
             acceleration = 1.0
@@ -45,7 +46,7 @@ fn parse_config_file(filepath: String) -> Configuration {
             drag_end_delay: 0
         };
     };
-    from_str::<Configuration>(&jsonfile).unwrap();
+
     let Ok(config) = from_str::<Configuration>(&jsonfile) else {
         println!("WARNING: Bad formatting found in JSON file, falling back on defaults of:
     
@@ -82,14 +83,33 @@ fn main() {
     // so we have to implement it ourselves.
     // 
     // Starting with getting $HOME...
-    let mut config_path = env::var_os("HOME")
-        .expect("$HOME is either not accessible to this program, or is not defined in your environment.")
-        .into_string()
-        .expect("could not convert $HOME to string");
-    let path_from_home_dir = "/.config/linux-3-finger-drag/3fd-config.json";
-    config_path.push_str(path_from_home_dir);
+    let configs = if let Some(home) = env::var_os("HOME") {
+        let path_from_home_dir = "/.config/linux-3-finger-drag/3fd-config.json";
 
-    let configs = parse_config_file(config_path);
+        let mut full_path = home;
+        full_path.push(path_from_home_dir);
+
+        parse_config_file(full_path)
+    } else {
+        // yes, this case has in fact happened to me, so it IS worth catching
+        println!("
+        $HOME is either not accessible to this program, or is not defined in your environment.
+        What's most likely, though, is it's a permissions issue with the SystemD folder created to 
+        hold the config file or executable; did you create either using sudo?
+
+        The configuration file (at least) will not be accessed, and the program will continue
+        execution (if possible), using defaults of:
+
+            acceleration = 1.0
+            dragEndDelay = 0
+        ");
+
+        Configuration {
+            acceleration: 1.0, 
+            drag_end_delay: 0
+        }
+    };    
+    
     let mut vtrackpad = uinput_handler::start_handler();
 
     let output = Command::new("stdbuf")
