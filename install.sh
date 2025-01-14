@@ -43,10 +43,18 @@ fi
 # 2. Disable 3-finger gestures in libinput-gestures
 echo -n "Updating libinput-gestures configs...  "
 if [[ -d /etc/libinput-gestures.conf ]]; then
-    sed -i.bak '' /etc/libinput-gestures.conf
+    cat /etc/libinput-gestures.conf > /etc/libinput-gestures.conf.bak
+    sed -i 's/gesture swipe up/gesture swipe up 4/' /etc/libinput-gestures.conf
+    sed -i 's/gesture swipe down/gesture swipe down 4/' /etc/libinput-gestures.conf
+    sed -i 's/gesture swipe left/gesture swipe left 4/' /etc/libinput-gestures.conf
+    sed -i 's/gesture swipe right/gesture swipe right 4/' /etc/libinput-gestures.conf
     echo "Previous configs saved in /etc/libinput-gestures.conf.bak"
 elif [[ -d ~/.config/libinput-gestures.conf ]]; then
-    sed -i.bak '' ~/.config/libinput-gestures.conf
+    cat ~/.config/libinput-gestures.conf > ~/.config/libinput-gestures.conf.bak
+    sed -i 's/gesture swipe up/gesture swipe up 4/' ~/.config/libinput-gestures.conf
+    sed -i 's/gesture swipe down/gesture swipe down 4/' ~/.config/libinput-gestures.conf
+    sed -i 's/gesture swipe left/gesture swipe left 4/' ~/.config/libinput-gestures.conf
+    sed -i 's/gesture swipe right/gesture swipe right 4/' ~/.config/libinput-gestures.conf
     echo "Previous configs saved in ~/.config/libinput-gestures.conf.bak"
 fi
 echo -e "[\e[0;32m DONE \e[0m]"
