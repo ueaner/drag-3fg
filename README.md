@@ -18,7 +18,19 @@ Three-finger dragging is a feature originally for trackpads on Mac devices: inst
 
 Here is [an example](https://www.youtube.com/watch?v=-Fy6imaiHWE) of three-finger dragging in action on a MacBook.
 
-## Installation
+## Automated installation
+
+The included `install.sh` installs the program as a SystemD user unit. It also updates the `libinput-gestures` config files (if you have that installed) so that all 3-finger gestures become 4-finger gestures. 
+
+It requires root permissions and will reboot your system afterward (if allowed by prompted response) to update program permissions for `libinput` and `uinput` (see Manual installation, step 3 below for details).
+
+You can execute the install script with the following:
+
+```
+sudo bash install.sh
+```
+
+## Manual installation
 
 ### 0. Install `libinput` helper tools (you may have it already)
 
