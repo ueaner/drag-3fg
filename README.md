@@ -5,9 +5,10 @@ This program builds off marsqing's [`libinput-three-finger-drag`](https://github
 
 OS | Version | Desktop Enviroment | Supported
 ---|---|---|---
-**Kubuntu** | 24.10 | KDE Plasma 6| ✅ <sup>1</sup>
+**Kubuntu** | 24.10 | KDE Plasma 6 | ✅ <sup>1</sup>
 **Pop_OS!** | (unknown) | COSMIC | ✅
 **Arch** | 2025-01-01 | GNOME | ✅
+**Gentoo** | 6.6.67 | KDE Plasma 6 | ✅
 
 ---
 <sup>1</sup> Developed on this setup.
