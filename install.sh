@@ -92,7 +92,10 @@ echo -e "[\e[0;32m DONE \e[0m]"
 
 
 # 4. Build with Cargo
+echo "Compiling..."
+echo
 cargo build --release
+echo
 
 
 # 6. Install to /usr/bin
