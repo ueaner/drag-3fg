@@ -1,0 +1,1 @@
+KERNEL=="event0", MODE="0660", TAG+="uaccess"

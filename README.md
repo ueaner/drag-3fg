@@ -98,24 +98,28 @@ The process is essentially the same: there is typically a configuration file som
 
 ### 3. Update permissions
 
-This programs reads from `libinput`, and writes to `/dev/uinput`, and it requires an adjustment of permissions to accomplish both. 
+This programs reads from `libinput` (using `/dev/input/event0`), and writes to `/dev/uinput`, so it requires an adjustment of permissions via udev rules to accomplish both. 
 
-#### 3.1: For `/dev/uinput`
-We need to alter the rules for `/dev/uinput` to make it accessible to all logged-in users, so the program doesn't require root permissions to run. For more info about what's being done here, see [this section](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) of the ArchWiki article on `udev`. 
+For more info about what's being done here, see [this section](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) of the ArchWiki article on `udev`. 
 You may need to create the folder `rules.d` in `/etc/udev`.
 
-<u>**For Arch users**</u>: You will need to set the `uinput` kernel module to load on boot, if you haven't already. For instructions on this, see the [relevant ArchWiki page](https://wiki.archlinux.org/title/Kernel_module#Automatic_module_loading).
+<u>**For Arch users**</u>: You will need to set the `uinput` kernel module to load on boot, if you haven't already, line so:
 ```
+echo "uinput" | sudo tee /etc/modules-load.d/uinput.conf 2&>/dev/null
+```
+
+Add the udev rules to your system:
+```
+sudo cp ./59-event0.rules /etc/udev/rules.d
 sudo cp ./60-uinput.rules /etc/udev/rules.d
 ```
 
-#### 3.2: For `libinput`
+Now reload the udev rules to apply them to the current session:
 
-`libinput` will only let members of the group `input` read its debug output, so add yourself to the group by running:
 ```
-sudo gpasswd --add your_username_here input
+sudo udevadm control --reload
+sudo udevadm trigger --settle 
 ```
-You will need to **reboot** to update the groups. 
 
 ### 4. Build with Cargo
 ```
