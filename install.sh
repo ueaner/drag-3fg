@@ -76,10 +76,10 @@ read
 echo -n "Updating permissions...                         "
 ## Update udev rules
 mkdir -p /etc/udev/rules.d   # make if not already extant
-cp ./59-event0.rules /etc/udev/rules.d
 cp ./60-uinput.rules /etc/udev/rules.d
-udevadm control --reload
-udevadm trigger --settle
+
+## Add user to "input" group to read libinput debug events
+gpasswd --add $SUDO_USER input
 
 ## Automatically load uinput kernel module
 ## Not necessary on Ubuntu-based distros,
@@ -94,7 +94,10 @@ echo -e "[\e[0;32m DONE \e[0m]"
 # 4. Build with Cargo
 echo "Compiling..."
 echo
-cargo build --release
+
+## this needs to be done as the user, or else is messes up the permissions
+## Cargo should never really be run as root anyway
+su $SUDO_USER -c 'cargo build --release'
 echo
 
 
@@ -140,6 +143,25 @@ else
     echo "(If I get enough requests for it I'll adapt this install script for other inits,"
     echo "probably starting with OpenRC. Also, feel free to submit a pull request for this.)"
 fi
+
+echo
+echo "This installation requires a reboot to complete (for the group modification)."
+echo
+echo -n "Would you like to reboot now? (y/n, default y) "
+read answer
+
+case "$answer" in 
+    y | "")
+        echo "Okay! Rebooting now..."
+        #reboot
+    ;;
+    n)
+        echo "Not rebooting. The program will start working after the next boot."
+    ;;
+    *)
+        echo "Response not recognized, not rebooting. The program will start working after the next boot."
+esac
+
 
 echo
 echo -e "\e[0;32mInstall complete!\e[0m"

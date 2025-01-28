@@ -21,9 +21,14 @@ Here is [an example](https://www.youtube.com/watch?v=-Fy6imaiHWE) of three-finge
 
 ## Automated installation
 
-The included `install.sh` installs the program as a SystemD user unit. It also updates the `libinput-gestures` config files (if you have that installed) so that all 3-finger gestures become 4-finger gestures. 
+The included `install.sh` installs the program as a SystemD user unit (other inits are not yet supported). It also updates the `libinput-gestures` config files (if you have that installed) so that all 3-finger gestures become 4-finger gestures. 
 
-It requires root permissions and will reboot your system afterward (if allowed by prompted response) to update program permissions for `libinput` and `uinput` (see Manual installation, step 3 below for details).
+It requires the following to run properly: 
+* **Root permissions**
+* A working Rust installation (see [Rust's install guide](https://www.rust-lang.org/tools/install))
+* `libinput`'s helper tools (see Step 0 below for install details)
+
+It will also ask to reboot your system afterward, which is required to update permissions for `libinput` and `uinput`.
 
 You can execute the install script with the following:
 
@@ -99,8 +104,9 @@ The process is essentially the same: there is typically a configuration file som
 
 ### 3. Update permissions
 
-This programs reads from `libinput` (using `/dev/input/event0`), and writes to `/dev/uinput`, so it requires an adjustment of permissions via udev rules to accomplish both. 
+This programs reads from `libinput` (using `/dev/input/event0`), and writes to `/dev/uinput`, so it requires an adjustment of permissions to accomplish both. 
 
+#### 3.1 For `uinput`
 For more info about what's being done here, see [this section](https://wiki.archlinux.org/title/Udev#Allowing_regular_users_to_use_devices) of the ArchWiki article on `udev`. 
 You may need to create the folder `rules.d` in `/etc/udev`.
 
@@ -111,15 +117,14 @@ echo "uinput" | sudo tee /etc/modules-load.d/uinput.conf 2&>/dev/null
 
 Add the udev rules to your system:
 ```
-sudo cp ./59-event0.rules /etc/udev/rules.d
 sudo cp ./60-uinput.rules /etc/udev/rules.d
 ```
 
-Now reload the udev rules to apply them to the current session:
+#### 3.2 For `libinput`
 
+Simply add yourself to the the user group "input":
 ```
-sudo udevadm control --reload
-sudo udevadm trigger --settle 
+sudo gpasswd --add your-username-here input
 ```
 
 ### 4. Build with Cargo
@@ -180,6 +185,10 @@ Now you just need to enable and start the service:
 ```
 systemctl --user enable --now three-finger-drag.service
 ```
+
+### 9. Reboot
+
+A reboot is required to update all the permissions needed for the program to run.
 
 ### You did it! Now you can 3-finger-drag!
 
