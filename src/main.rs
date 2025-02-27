@@ -1,139 +1,108 @@
-extern crate regex;
-extern crate signal_hook;
-extern crate serde;
-extern crate serde_json;
-
 use regex::Regex;
-use std::io::{self, BufRead};
-use std::ffi::OsString;
-use std::fs::read_to_string;
-use std::iter::Iterator;
-use std::process::{Command, Stdio};
-use std::env;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
 use serde::Deserialize;
 use serde_json::from_str;
+use std::fs::read_to_string;
+use std::io::{self, BufRead};
+use std::iter::Iterator;
+use std::path::PathBuf;
+use std::process::{Command, Stdio};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 mod uinput_handler;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct Configuration {
     acceleration: f32,
-    drag_end_delay: u64  // in milliseconds
+    drag_end_delay: u64, // in milliseconds
 }
 
+impl Default for Configuration {
+    fn default() -> Self {
+        Configuration {
+            acceleration: 1.0,
+            drag_end_delay: 0,
+        }
+    }
+}
+
+pub type Error = String;
+
 // Configs are so optional that their absence should not crash the program,
-// So if there is any issue with the JSON config file, 
+// So if there is any issue with the JSON config file,
 // the following default values will be returned:
 //
 //      acceleration = 1.0
 //      dragEndDelay = 0
 //
-// The user is also warned about this, so they can address the issues 
+// The user is also warned about this, so they can address the issues
 // if they want to configure the way the program runs.
-fn parse_config_file(filepath: OsString) -> Configuration {
-
-    let Ok(jsonfile) = read_to_string::<&OsString>(&filepath) else {
-        println!("WARNING: Unable to locate JSON file at {:?}; using defaults of:
-
-            acceleration = 1.0
-            dragEndDelay = 0
-            ", filepath);
-
-        return Configuration {
-            acceleration: 1.0, 
-            drag_end_delay: 0
-        };
-    };
-
-    let Ok(config) = from_str::<Configuration>(&jsonfile) else {
-        println!("WARNING: Bad formatting found in JSON file, falling back on defaults of:
-    
-            acceleration = 1.0
-            dragEndDelay = 0
-            ");
-    
-        return Configuration {
-            acceleration: 1.0, 
-            drag_end_delay: 0
-        };
-    };
-
-    config
-}
- 
-fn main() {
-
-    // handling SIGINT and SIGTERM
-    let sigterm_received = Arc::new(AtomicBool::new(false));
-    let sigint_received  = Arc::new(AtomicBool::new(false));
-
-    signal_hook::flag::register(
-        signal_hook::consts::SIGTERM, 
-        Arc::clone(&sigterm_received)
-    ).unwrap();
-
-    signal_hook::flag::register(
-        signal_hook::consts::SIGINT, 
-        Arc::clone(&sigint_received)
-    ).unwrap();
-    
-    // Rust does not expand ~ notation in Unix filepath strings, 
-    // so we have to implement it ourselves.
-    // 
-    // Starting with getting $HOME...
-    let configs = if let Some(home) = env::var_os("HOME") {
-        let path_from_home_dir = "/.config/linux-3-finger-drag/3fd-config.json";
-
-        let mut full_path = home;
-        full_path.push(path_from_home_dir);
-
-        parse_config_file(full_path)
-    } else {
-        // yes, this case has in fact happened to me, so it IS worth catching
-        println!("
-        $HOME is either not accessible to this program, or is not defined in your environment.
-        What's most likely, though, is it's a permissions issue with the SystemD folder created to 
-        hold the config file or executable; did you create either using sudo?
-
-        The configuration file (at least) will not be accessed, and the program will continue
-        execution (if possible), using defaults of:
-
-            acceleration = 1.0
-            dragEndDelay = 0
-        ");
-
-        Configuration {
-            acceleration: 1.0, 
-            drag_end_delay: 0
+fn parse_config_file() -> Result<Configuration, Error> {
+    let config_folder = match std::env::var_os("XDG_CONFIG_HOME") {
+        Some(config_dir) => PathBuf::from(config_dir),
+        None => {
+            let home = std::env::var_os("HOME").ok_or_else(|| {
+                // yes, this case has in fact happened to me, so it IS worth catching
+                "$HOME is either not accessible to this program, or is not defined in your environment. \
+                What's most likely, though, is it's a permissions issue with the SystemD folder created to\
+                hold the config file or executable; did you create either using sudo?".to_owned()
+            })?;
+            PathBuf::from(home).join(".config")
         }
-    };    
-    
+    };
+    let filepath = config_folder.join("linux-3-finger-drag/3fd-config.json");
+    let jsonfile = read_to_string(&filepath)
+        .map_err(|_| format!("Unable to locate JSON file at {:?} ", filepath))?;
+
+    let config = from_str::<Configuration>(&jsonfile)
+        .map_err(|_| "Bad formatting found in JSON file".to_owned())?;
+
+    Ok(config)
+}
+
+fn main() {
+    // Rust does not expand ~ notation in Unix filepath strings,
+    // so we have to implement it ourselves.
+    //
+    // Starting with getting $HOME...
+    let configs = match parse_config_file() {
+        Ok(cfg) => cfg,
+        Err(err) => {
+            let cfg = Default::default();
+            eprintln!("WARNING: {err}\n\nThe configuration file (at least) will not be accessed,\
+                and the program will continue execution (if possible), using defaults of:\n {cfg:#?}");
+            cfg
+        }
+    };
+
     let mut vtrackpad = uinput_handler::start_handler();
 
-    let output = Command::new("stdbuf")
-        .arg("-o0")
-        .arg("libinput")
+    let output = Command::new("libinput")
         .arg("debug-events")
         .stdout(Stdio::piped())
         .spawn()
-        .expect("You are not yet allowed to read libinput's debug events.
+        .expect(
+            "You are not yet allowed to read libinput's debug events.
         Have you added yourself to the group \"input\" yet?
         (see installation section in README, step 3.2)
-        ")
+        ",
+        )
         .stdout
         .expect("libinput has no stdout");
-
 
     let mut xsum: f32 = 0.0;
     let mut ysum: f32 = 0.0;
     let pattern = Regex::new(r"[\s]+|/|\(").unwrap();
 
+    // handling SIGINT and SIGTERM
+    let should_exit = Arc::new(AtomicBool::new(false));
+
+    signal_hook::flag::register(signal_hook::consts::SIGTERM, Arc::clone(&should_exit)).unwrap();
+    signal_hook::flag::register(signal_hook::consts::SIGINT, Arc::clone(&should_exit)).unwrap();
+
     for line in io::BufReader::new(output).lines() {
-        
         // handle interrupts
-        if sigterm_received.load(Ordering::Relaxed) || sigint_received.load(Ordering::Relaxed) {
+        if should_exit.load(Ordering::Relaxed) {
             break;
         }
 
@@ -146,7 +115,7 @@ fn main() {
                 parts.remove(2);
             }
             let finger = parts[3];
-            if finger != "3" && !action.starts_with("GESTURE_HOLD"){
+            if finger != "3" && !action.starts_with("GESTURE_HOLD") {
                 // mouse_down
                 vtrackpad.mouse_down();
                 continue;
@@ -205,7 +174,6 @@ fn main() {
         }
     }
 
-    vtrackpad.mouse_up();       // just in case
-    vtrackpad.dev_destroy();    // we don't need virtual devices cluttering the system
-
+    vtrackpad.mouse_up(); // just in case
+    vtrackpad.dev_destroy(); // we don't need virtual devices cluttering the system
 }
