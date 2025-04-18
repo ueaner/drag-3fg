@@ -19,8 +19,8 @@ jobs:
         run: cargo build --release
       - name: Where is the target
         run: |
-          ls .
-          find . name drag-3fg
+          ls ./target/release
+          find . -type f -name drag-3fg
       - name: Run tests
         run: cargo test --verbose
 
