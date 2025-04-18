@@ -17,11 +17,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: cargo build --release
+      - name: Where is the target
+        run: |
+          ls .
+          find . name drag-3fg
       - name: Run tests
         run: cargo test --verbose
 
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: drag-3fg
-          path: drag-3fg
+      # - name: Upload release artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: drag-3fg
+      #     path: drag-3fg
