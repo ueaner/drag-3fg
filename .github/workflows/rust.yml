@@ -20,7 +20,9 @@ jobs:
       - name: Where is the target
         run: |
           ls ./target/release
-          find . -type f -name drag-3fg
+      - name: Where is the target 2
+        run: |
+          find . -type f -name linux-3-finger-drag
       - name: Run tests
         run: cargo test --verbose
 
